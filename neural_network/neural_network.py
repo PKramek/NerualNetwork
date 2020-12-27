@@ -23,7 +23,8 @@ class NeuralNetwork:
 
     def predict(self, input_data: np.ndarray):
         # input data could be 2d
-        return self.forward_propagation(input_data)
+        output = self.forward_propagation(input_data)
+        return output.flatten()
 
     def forward_propagation(self, input_data: np.array):
         output = input_data
@@ -54,13 +55,28 @@ class NeuralNetwork:
         num_of_samples = len(y_train)
 
         for epoch in range(epochs):
+            epoch_error = 0
             for i in range(num_of_samples):
                 output = self.forward_propagation(x_train[i])
 
                 error = self._loss_function.loss(output, y_train[i])
-                errors.append(error)
+                # TODO change this to use mean from epoch not all errors
+                epoch_error += error
 
                 error_derivative = self._loss_function.derivative(output, y_train[i])
                 self.backward_propagation(error_derivative, learning_rate)
 
+            errors.append(epoch_error)
+
         return errors
+
+    def score(self, x_true: np.array, y_true: np.array):
+        predictions = self.predict(x_true)
+        diff = y_true - predictions
+        u = np.sum(diff ** 2)
+        true_mean = np.mean(y_true)
+        second_diff = (y_true - true_mean)
+        v = np.sum(second_diff ** 2)
+        score = 1 - (u / v)
+
+        return score

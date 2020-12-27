@@ -1,51 +1,47 @@
+import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.neural_network import MLPRegressor
 
 from neural_network.layers import Linear, ReLu
 from neural_network.loss_functions import MSE
 from neural_network.neural_network import NeuralNetwork
 
-from sklearn.neural_network import MLPRegressor
-import numpy as np
-import random
-
-
 
 def aim_function(x):
-    return (x ** 2) / 10
+    return (x ** 5) / 10000
 
 
 def create_samples(func, num):
     x_s = np.random.uniform(low=-10, high=10, size=(num, 1))
-    y_s = [func(i[0]) for i in x_s]
+    y_s = np.array([func(i[0]) for i in x_s], dtype=np.float32)
     return x_s, y_s
 
 
-x_samples, y_samples = create_samples(aim_function, 10)
+# np.random.seed(42)
 
-test_x, test_y = create_samples(aim_function, 10)
+x_samples, y_samples = create_samples(aim_function, 100)
 
-regr = MLPRegressor(random_state=1).fit(x_samples, y_samples)
+test_x, test_y = create_samples(aim_function, 100)
 
-print(regr.score(test_x, test_y))
+learning_rate = 0.001
+epochs = 200
 
-
-
-np.random.seed(42)
-learning_rate = 0.01
-epochs = 10000
-
-first = Linear(5, 3)
-relu = ReLu(3, 3)
-second = Linear(3, 2)
-second_relu = ReLu(2, 2)
-
-input = np.ones(5, dtype=np.float32)
+first = Linear(1, 100)
+relu = ReLu(100, 100)
+second = Linear(100, 1)
 
 nn = NeuralNetwork(MSE())
 
 nn.add(first)
 nn.add(relu)
 nn.add(second)
-nn.add(second_relu)
 
-nn.train()
+print('*' * 50 + 'Ours' + '*' * 50)
+errors = nn.train(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs)
+print(nn.score(test_x, test_y))
+print('*' * 50 + 'Not ours' + '*' * 50)
+regr = MLPRegressor().fit(x_samples, y_samples)
+print(regr.score(test_x, test_y))
+
+plt.plot(errors)
+plt.show()
