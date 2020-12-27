@@ -15,7 +15,7 @@ class NeuralNetwork:
 
     @loss_function.setter
     def loss_function(self, loss_function: 'LossFunction'):
-        assert isinstance(loss_function, LossFunction), 'Lost function must be object of class extending LossFunction'
+        assert isinstance(loss_function, LossFunction), 'Loss function must be object of class extending LossFunction'
         self._loss_function = loss_function
 
     def add(self, layer: 'Layer'):
