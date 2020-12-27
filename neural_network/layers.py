@@ -32,7 +32,7 @@ class Layer(ABC):
         pass
 
 
-# TODO test these methods
+# TODO test these classes
 
 class Linear(Layer):
     def __init__(self, input_size: int, output_size: int):
