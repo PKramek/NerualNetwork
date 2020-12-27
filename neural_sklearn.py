@@ -13,10 +13,10 @@ def create_samples(func, num):
     return x_s, y_s
 
 
-x_samples, y_samples = create_samples(aim_function, 10)
+iterations = 1000
+x_samples, y_samples = create_samples(aim_function, iterations)
 
-test_x, test_y = create_samples(aim_function, 10)
+test_x, test_y = create_samples(aim_function, iterations)
 
 regr = MLPRegressor(random_state=1).fit(x_samples, y_samples)
-
 print(regr.score(test_x, test_y))
