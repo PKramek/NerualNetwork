@@ -13,7 +13,7 @@ def aim_function(x):
 
 def create_samples(func, num):
     x_s = np.random.uniform(low=-10, high=10, size=(num, 1))
-    y_s = np.array([func(i[0]) for i in x_s], dtype=np.float32)
+    y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float32)
     return x_s, y_s
 
 
@@ -38,6 +38,7 @@ nn.add(second)
 
 print('*' * 50 + 'Ours' + '*' * 50)
 errors = nn.train(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs)
+# errors = nn.train_minibatch(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs, minibatch_size=32)
 print(nn.score(test_x, test_y))
 print('*' * 50 + 'Not ours' + '*' * 50)
 regr = MLPRegressor().fit(x_samples, y_samples)
