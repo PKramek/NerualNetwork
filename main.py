@@ -21,7 +21,7 @@ def create_samples(func, num):
 
 x_samples, y_samples = create_samples(aim_function, 100)
 
-test_x, test_y = create_samples(aim_function, 100)
+test_x, test_y = create_samples(aim_function, 1000)
 
 learning_rate = 0.001
 epochs = 200
@@ -41,8 +41,8 @@ print('*' * 50 + 'Ours' + '*' * 50)
 errors = nn.train_minibatch(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs, minibatch_size=32)
 print(nn.score(test_x, test_y))
 print('*' * 50 + 'Not ours' + '*' * 50)
-regr = MLPRegressor().fit(x_samples, y_samples)
-print(regr.score(test_x, test_y))
+regr = MLPRegressor().fit(x_samples, y_samples.ravel())
+print(regr.score(test_x, test_y.ravel()))
 
 plt.plot(errors)
 plt.show()

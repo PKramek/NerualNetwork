@@ -51,13 +51,14 @@ class Linear(Layer):
         return self.output
 
     def backward(self, error: np.array, learning_rate: float):
-        input_error = np.dot(error, self.weights.T)
-        weights_error = np.dot(self.input.T, error)
+        input_derivatives = np.dot(error, self.weights.T)
+        weights_derivatives = np.dot(self.input.T, error)
+        bias_derivatives = np.sum(error, axis=1, keepdims=True)
 
-        self.weights -= learning_rate * weights_error
-        self.bias -= learning_rate * error
+        self.weights -= learning_rate * weights_derivatives
+        self.bias -= learning_rate * bias_derivatives
 
-        return input_error
+        return input_derivatives
 
 
 class ReLu(Layer):

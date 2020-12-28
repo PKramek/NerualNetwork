@@ -16,8 +16,11 @@ class LossFunction(ABC):
 
 class MSE(LossFunction):
     def loss(self, output: np.array, desired_output: np.array):
-        diff = desired_output - output
-        return np.mean(np.power(desired_output - output, 2))
+        m = output.shape[1]
+
+        cost = np.sum(np.square(desired_output - output)) / m
+        return np.squeeze(cost)
 
     def derivative(self, output: np.array, desired_output: np.array):
-        return np.mean(2 * (output - desired_output) / len(output))
+        m = output.shape[1]
+        return (2 * (output - desired_output) / len(output)) / m
