@@ -26,7 +26,7 @@ class NeuralNetwork:
     def predict(self, input_data: np.ndarray):
         # input data could be 2d
         output = self.forward_propagation(input_data)
-        return output.flatten()
+        return output
 
     def forward_propagation(self, input_data: np.array):
         output = input_data

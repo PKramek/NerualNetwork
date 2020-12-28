@@ -20,4 +20,4 @@ class MSE(LossFunction):
         return np.mean(np.power(desired_output - output, 2))
 
     def derivative(self, output: np.array, desired_output: np.array):
-        return 2 * (output - desired_output) / len(output)
+        return np.mean(2 * (output - desired_output) / len(output))
