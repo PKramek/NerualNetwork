@@ -17,6 +17,27 @@ def create_samples(func, num):
     return x_s, y_s
 
 
+def test_network():
+    scores = []
+    for i in range(20):
+        np.random.seed = i + 1
+        x_train, y_train = create_samples(aim_function, 1000)
+        x_test, y_test = create_samples(aim_function, 100)
+        nn.train(
+            x_train.T,
+            y_train.T,
+            learning_rate=learning_rate,
+            epochs=epochs,
+            minibatch_size=32,
+            calc_test_err=True,
+            x_test=x_test.T,
+            y_test=y_test.T,
+        )
+        scores.append(nn.score(x_test.T, y_test.T))
+    return np.mean(scores), np.std(scores)
+
+
+np.random.seed(38)
 x_train, y_train = create_samples(aim_function, 1000)
 
 x_test, y_test = create_samples(aim_function, 100)
@@ -40,19 +61,35 @@ nn.add(first)
 nn.add(relu)
 nn.add(second)
 
-print('*' * 50 + 'Ours' + '*' * 50)
-errors, test_errors = nn.train(x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=32,
-                               calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
+np.random.seed(42)
+print("*" * 50 + "Ours" + "*" * 50)
+errors, test_errors = nn.train(
+    x_train.T,
+    y_train.T,
+    learning_rate=learning_rate,
+    epochs=epochs,
+    minibatch_size=32,
+    calc_test_err=True,
+    x_test=x_test.T,
+    y_test=y_test.T,
+)
+
 print(nn.score(x_test.T, y_test.T))
-print('*' * 50 + 'Not ours' + '*' * 50)
+
+avg_value, std_dev = test_network()
+print(f"Average loss function value: {avg_value}")
+print(f"Standard devation: {std_dev}")
+print("*" * 50 + "Not ours" + "*" * 50)
 
 regr = MLPRegressor().fit(x_train, y_train.ravel())
 print(regr.score(x_test, y_test.ravel()))
 
-plt.xlabel('Epoch')
-plt.ylabel('Loss function value')
-plt.plot(errors, label='Train data')
-plt.plot(test_errors, label='Test data')
+
+
+plt.xlabel("Epoch")
+plt.ylabel("Loss function value")
+plt.plot(errors, label="Train data")
+plt.plot(test_errors, label="Test data")
 plt.legend()
 plt.grid()
 plt.show()
