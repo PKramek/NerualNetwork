@@ -24,15 +24,13 @@ class Layer(ABC):
         return self._output_size
 
     @abstractmethod
-    def forward(self, input_data: np.array):
+    def forward(self, input_data: np.ndarray, no_grad: bool = False):
         pass
 
     @abstractmethod
-    def backward(self, error: np.array, learning_rate: float):
+    def backward(self, error: np.ndarray, learning_rate: float):
         pass
 
-
-# TODO test these classes
 
 class Linear(Layer):
     def __init__(self, input_size: int, output_size: int):
@@ -44,11 +42,14 @@ class Linear(Layer):
         self.weights = np.random.uniform(low=weights_low, high=weights_high, size=(output_size, input_size))
         self.bias = np.zeros((output_size, 1), dtype=np.float32)
 
-    def forward(self, input_data: np.ndarray):
-        self.input = input_data
-        self.output = np.dot(self.weights, self.input) + self.bias
+    def forward(self, input_data: np.ndarray, no_grad: bool = False):
+        output = np.dot(self.weights, input_data) + self.bias
 
-        return self.output
+        if no_grad is False:
+            self.input = input_data
+            self.output = output
+
+        return output
 
     def backward(self, grad: np.array, learning_rate: float):
         input_derivatives = np.dot(self.weights.T, grad)
@@ -65,11 +66,13 @@ class ReLu(Layer):
     def __init__(self, input_size: int, output_size: int):
         super().__init__(input_size, output_size)
 
-    def forward(self, input_data: np.array):
-        self.input = input_data
-        self.output = input_data * (input_data > 0)
+    def forward(self, input_data: np.ndarray, no_grad: bool = False):
+        output = input_data * (input_data > 0)
+        if no_grad is False:
+            self.input = input_data
+            self.output = output
 
-        return self.output
+        return output
 
     def backward(self, error: np.array, learning_rate: float):
         return (self.input > 0) * error
@@ -79,11 +82,12 @@ class Tanh(Layer):
     def __init__(self, input_size: int, output_size: int):
         super().__init__(input_size, output_size)
 
-    def forward(self, input_data: np.array):
-        self.input = input_data
-        self.output = np.tanh(input_data)
-
-        return self.output
+    def forward(self, input_data: np.ndarray, no_grad: bool = False):
+        output = np.tanh(input_data)
+        if no_grad is False:
+            self.input = input_data
+            self.output = output
+        return output
 
     def backward(self, error: np.array, learning_rate: float):
         return (1 - np.tanh(self.input) ** 2) * error
@@ -93,11 +97,12 @@ class Sigmoid(Layer):
     def __init__(self, input_size: int, output_size: int):
         super().__init__(input_size, output_size)
 
-    def forward(self, input_data: np.array):
-        self.input = input_data
-        self.output = np.tanh(input_data)
-
-        return self.output
+    def forward(self, input_data: np.ndarray, no_grad: bool = False):
+        output = np.tanh(input_data)
+        if no_grad is False:
+            self.input = input_data
+            self.output = output
+        return output
 
     def backward(self, error: np.array, learning_rate: float):
         return error * self.input * (1 - self.input)

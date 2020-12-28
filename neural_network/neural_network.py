@@ -1,4 +1,4 @@
-from typing import Generator, Tuple
+from typing import Generator, Tuple, Optional
 
 import numpy as np
 
@@ -28,11 +28,11 @@ class NeuralNetwork:
         output = self.forward_propagation(input_data)
         return output
 
-    def forward_propagation(self, input_data: np.array):
+    def forward_propagation(self, input_data: np.array, no_grad: bool = False):
         output = input_data
 
         for layer in self.layers:
-            output = layer.forward(output)
+            output = layer.forward(output, no_grad)
 
         return output
 
@@ -59,37 +59,48 @@ class NeuralNetwork:
             yield x_train[indices[start: end]], y_train[indices[start: end]]
 
     def train(self, x_train: np.ndarray, y_train: np.ndarray, epochs: int, learning_rate: float,
-              minibatch_size: int):
+              minibatch_size: int, calc_test_err: bool = False, x_test: Optional[np.ndarray] = None,
+              y_test: Optional[np.ndarray] = None):
         assert isinstance(epochs, int) and epochs > 0, 'Number of epochs must be integer bigger than 0'
         assert isinstance(learning_rate, float) and learning_rate > 0, 'Learning rate must be float bigger than 0'
         assert isinstance(
             minibatch_size, int) and minibatch_size > 0, 'Size of mini-batch must be integer bigger than 0'
+
         assert isinstance(x_train, np.ndarray)
         assert isinstance(y_train, np.ndarray)
         assert x_train.shape[0] == y_train.shape[0]
 
+        assert isinstance(calc_test_err, bool)
+        if calc_test_err:
+            assert isinstance(x_test, np.ndarray)
+            assert isinstance(y_test, np.ndarray)
+            assert x_test.shape[0] == y_test.shape[0]
+
+        test_errors = []
         errors = []
 
         for epoch in range(epochs):
+            if calc_test_err:
+                test_output = self.forward_propagation(x_test, no_grad=True)
+                test_errors.append(self._loss_function.loss(test_output, y_test))
+
             epoch_error = 0
             minibatch_generator = self.minibatch_generator(x_train, y_train, minibatch_size, True)
             for x, y in minibatch_generator:
                 output = self.forward_propagation(x)
-
-                error = self._loss_function.loss(output, y)
-                epoch_error += error
-
+                epoch_error += self._loss_function.loss(output, y)
                 error_derivative = self._loss_function.derivative(output, y)
                 self.backward_propagation(error_derivative, learning_rate)
 
             errors.append(epoch_error)
 
+        if calc_test_err:
+            return errors, test_errors
+
         return errors
 
     def score(self, x_true: np.array, y_true: np.array):
         predictions = self.predict(x_true)
-        # for i in range(len(predictions)):
-        #     print(f'{predictions[0][i]} true:{y_true[0][i]}')
         diff = y_true - predictions
         u = np.sum(diff ** 2)
         true_mean = np.mean(y_true)
