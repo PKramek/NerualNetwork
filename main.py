@@ -8,7 +8,7 @@ from neural_network.neural_network import NeuralNetwork
 
 
 def aim_function(x):
-    return (x ** 5) / 10000
+    return (x ** 2) / 10
 
 
 def create_samples(func, num):
@@ -17,14 +17,14 @@ def create_samples(func, num):
     return x_s, y_s
 
 
-np.random.seed(42)
+# np.random.seed(42)
 
 x_samples, y_samples = create_samples(aim_function, 1000)
 
-test_x, test_y = create_samples(aim_function, 100)
+test_x, test_y = create_samples(aim_function, 10)
 
 learning_rate = 0.001
-epochs = 200
+epochs = 500
 
 first = Linear(1, 100)
 relu = ReLu(100, 100)
@@ -36,13 +36,15 @@ nn.add(first)
 nn.add(relu)
 nn.add(second)
 
+
 print('*' * 50 + 'Ours' + '*' * 50)
 errors = nn.train(x_samples.T, y_samples.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=32)
 print(nn.score(test_x.T, test_y.T))
+print(nn.score(x_samples.T, y_samples.T))
 print('*' * 50 + 'Not ours' + '*' * 50)
 
 regr = MLPRegressor().fit(x_samples, y_samples.ravel())
 print(regr.score(test_x, test_y.ravel()))
 
-plt.plot(errors)
+plt.plot(errors[20:])
 plt.show()

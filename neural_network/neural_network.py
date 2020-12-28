@@ -88,6 +88,8 @@ class NeuralNetwork:
 
     def score(self, x_true: np.array, y_true: np.array):
         predictions = self.predict(x_true)
+        # for i in range(len(predictions)):
+        #     print(f'{predictions[0][i]} true:{y_true[0][i]}')
         diff = y_true - predictions
         u = np.sum(diff ** 2)
         true_mean = np.mean(y_true)

@@ -46,8 +46,7 @@ class Linear(Layer):
 
     def forward(self, input_data: np.ndarray):
         self.input = input_data
-        dot = np.dot(self.weights, self.input)
-        self.output = dot + self.bias
+        self.output = np.dot(self.weights, self.input) + self.bias
 
         return self.output
 
@@ -88,3 +87,17 @@ class Tanh(Layer):
 
     def backward(self, error: np.array, learning_rate: float):
         return (1 - np.tanh(self.input) ** 2) * error
+
+
+class Sigmoid(Layer):
+    def __init__(self, input_size: int, output_size: int):
+        super().__init__(input_size, output_size)
+
+    def forward(self, input_data: np.array):
+        self.input = input_data
+        self.output = np.tanh(input_data)
+
+        return self.output
+
+    def backward(self, error: np.array, learning_rate: float):
+        return error * self.input * (1 - self.input)
