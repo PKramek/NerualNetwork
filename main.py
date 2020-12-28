@@ -17,11 +17,11 @@ def create_samples(func, num):
     return x_s, y_s
 
 
-# np.random.seed(42)
+np.random.seed(42)
 
-x_samples, y_samples = create_samples(aim_function, 100)
+x_samples, y_samples = create_samples(aim_function, 1000)
 
-test_x, test_y = create_samples(aim_function, 1000)
+test_x, test_y = create_samples(aim_function, 100)
 
 learning_rate = 0.001
 epochs = 200
@@ -37,10 +37,10 @@ nn.add(relu)
 nn.add(second)
 
 print('*' * 50 + 'Ours' + '*' * 50)
-# errors = nn.train(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs)
-errors = nn.train_minibatch(x_samples, y_samples, learning_rate=learning_rate, epochs=epochs, minibatch_size=32)
-print(nn.score(test_x, test_y))
+errors = nn.train(x_samples.T, y_samples.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=32)
+print(nn.score(test_x.T, test_y.T))
 print('*' * 50 + 'Not ours' + '*' * 50)
+
 regr = MLPRegressor().fit(x_samples, y_samples.ravel())
 print(regr.score(test_x, test_y.ravel()))
 

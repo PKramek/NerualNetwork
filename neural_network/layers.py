@@ -41,19 +41,20 @@ class Linear(Layer):
         weights_low = -1 / np.sqrt(input_size)
         weights_high = 1 / np.sqrt(input_size)
 
-        self.weights = np.random.uniform(low=weights_low, high=weights_high, size=(input_size, output_size))
-        self.bias = np.zeros((1, output_size), dtype=np.float32)
+        self.weights = np.random.uniform(low=weights_low, high=weights_high, size=(output_size, input_size))
+        self.bias = np.zeros((output_size, 1), dtype=np.float32)
 
-    def forward(self, input_data: np.array):
+    def forward(self, input_data: np.ndarray):
         self.input = input_data
-        self.output = np.dot(self.input, self.weights) + self.bias
+        dot = np.dot(self.weights, self.input)
+        self.output = dot + self.bias
 
         return self.output
 
-    def backward(self, error: np.array, learning_rate: float):
-        input_derivatives = np.dot(error, self.weights.T)
-        weights_derivatives = np.dot(self.input.T, error)
-        bias_derivatives = np.sum(error, axis=1, keepdims=True)
+    def backward(self, grad: np.array, learning_rate: float):
+        input_derivatives = np.dot(self.weights.T, grad)
+        weights_derivatives = np.dot(grad, self.input.T)
+        bias_derivatives = np.sum(grad, axis=1, keepdims=True)
 
         self.weights -= learning_rate * weights_derivatives
         self.bias -= learning_rate * bias_derivatives
