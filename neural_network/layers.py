@@ -98,11 +98,12 @@ class Sigmoid(Layer):
         super().__init__(input_size, output_size)
 
     def forward(self, input_data: np.ndarray, no_grad: bool = False):
-        output = np.tanh(input_data)
+        output = 1 / (1 + np.exp(-input_data))
         if no_grad is False:
             self.input = input_data
             self.output = output
         return output
 
     def backward(self, error: np.array, learning_rate: float):
-        return error * self.input * (1 - self.input)
+        sigmoid = 1 / (1 + np.exp(-error))
+        return sigmoid * (1 - sigmoid)

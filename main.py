@@ -8,11 +8,11 @@ from neural_network.neural_network import NeuralNetwork
 
 
 def aim_function(x):
-    return (x ** 3) / 100
+    return (x ** 3)
 
 
 def create_samples(func, num):
-    x_s = np.random.uniform(low=-10, high=10, size=(num, 1))
+    x_s = np.random.uniform(low=-2, high=2, size=(num, 1))
     y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float32)
     return x_s, y_s
 
@@ -22,31 +22,29 @@ x_train, y_train = create_samples(aim_function, 1000)
 x_test, y_test = create_samples(aim_function, 100)
 
 learning_rate = 0.001
-epochs = 200
+epochs = 2000
 
 first = Linear(1, 100)
-relu = ReLu(100, 100)
-second = Linear(100, 1)
+first_activation = ReLu(100, 100)
+second = Linear(100, 100)
+second_activation = ReLu(100, 100)
+third = Linear(100, 1)
 
 nn = NeuralNetwork(MSE())
 
-second_first = Linear(1, 32)
-sec_relu = ReLu(32, 32)
-seconds_second = Linear(32, 16)
-sec_sec_relu = ReLu(16, 16)
-third = Linear(16, 1)
-
 nn.add(first)
-nn.add(relu)
+nn.add(first_activation)
 nn.add(second)
+nn.add(second_activation)
+nn.add(third)
 
 print('*' * 50 + 'Ours' + '*' * 50)
-errors, test_errors = nn.train(x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=32,
+errors, test_errors = nn.train(x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=64,
                                calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
 print(nn.score(x_test.T, y_test.T))
-print('*' * 50 + 'Not ours' + '*' * 50)
+print('*' * 50 + 'MLPRegressor' + '*' * 50)
 
-regr = MLPRegressor().fit(x_train, y_train.ravel())
+regr = MLPRegressor(solver='sgd', max_iter=epochs).fit(x_train, y_train.ravel())
 print(regr.score(x_test, y_test.ravel()))
 
 plt.xlabel('Epoch')
