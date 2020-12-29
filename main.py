@@ -13,7 +13,7 @@ def aim_function(x):
 
 def create_samples(func, num):
     x_s = np.random.uniform(low=-2, high=2, size=(num, 1))
-    y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float32)
+    y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float64)
     return x_s, y_s
 
 
@@ -60,7 +60,7 @@ x_train, y_train = create_samples(aim_function, 1000)
 x_test, y_test = create_samples(aim_function, 100)
 
 learning_rate = 0.001
-epochs = 2000
+epochs = 200
 
 first = Linear(1, 100)
 first_activation = activation_function(100, 100)
