@@ -1,5 +1,5 @@
 from pprint import pprint
-from typing import List, Callable
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,19 +12,6 @@ from neural_network.loss_functions import MSE
 from neural_network.neural_network import NeuralNetwork
 
 np.random.seed(42)
-
-
-# warnings.filterwarnings("ignore")
-
-
-def aim_function(x):
-    return x ** 4 / 100
-
-
-def create_samples(func: Callable, num: int):
-    x_s = np.random.uniform(low=-2, high=2, size=(num, 1))
-    y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float64)
-    return x_s, y_s
 
 
 def create_training_and_testing_data(n_samples: int, test_size: float, n_features: int):
