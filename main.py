@@ -1,5 +1,6 @@
 import warnings
 from pprint import pprint
+from typing import List, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +19,7 @@ def aim_function(x):
     return x ** 3
 
 
-def create_samples(func, num):
+def create_samples(func: Callable, num: int):
     x_s = np.random.uniform(low=-2, high=2, size=(num, 1))
     y_s = np.array([np.array([func(i[0])]) for i in x_s], dtype=np.float64)
     return x_s, y_s
@@ -31,7 +32,7 @@ def create_training_and_testing_data(training_size: int, test_size: int):
     return x_train, y_train, x_test, y_test
 
 
-def create_network(activation_type):
+def create_network(activation_type: str):
     activation_lookup = {
         'Tanh': Tanh,
         'Sigmoid': Sigmoid,
@@ -78,7 +79,7 @@ def test_network_and_default_implementation(
     return nn_scores, np.mean(nn_scores), np.std(nn_scores), regr_scores, np.mean(regr_scores), np.std(regr_scores)
 
 
-def plot_errors(path, errors, test_errors, title):
+def plot_errors(path: str, errors: List[float], test_errors: List[float], title: str):
     plt.xlabel("Epoch")
     plt.ylabel("Loss function value")
     plt.title(title)
