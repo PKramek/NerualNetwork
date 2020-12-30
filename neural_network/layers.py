@@ -79,7 +79,8 @@ class ReLu(Layer):
         return output
 
     def backward(self, error: np.array, learning_rate: float):
-        return (self.input > 0) * error
+        output = (self.input > 0) * error
+        return output
 
 
 class Tanh(Layer):

@@ -14,7 +14,7 @@ from neural_network.neural_network import NeuralNetwork
 
 np.random.seed(42)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 
 def aim_function(x):
@@ -36,6 +36,9 @@ def create_training_and_testing_data(n_samples: int, test_size: float, n_feature
     # x_test, y_test = create_samples(aim_function, test_size)
     x, y = make_regression(n_samples=n_samples, n_features=n_features)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size)
+
+    y_train = y_train.reshape(1, y_train.shape[0])
+    y_test = y_test.reshape(1, y_test.shape[0])
 
     return x_train, y_train, x_test, y_test
 
@@ -81,8 +84,8 @@ def test_network_and_default_implementation(
     for i in range(n):
         x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
 
-        nn = create_network(activation, n_features, output_size=1)
-        nn.train(x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size)
+        nn = create_network(activation_type, n_features, output_size=1)
+        nn.train(x_train.T, y_train, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size)
         nn_scores.append(nn.score(x_test.T, y_test.T))
 
         regr = MLPRegressor().fit(x_train, y_train.ravel())
@@ -105,7 +108,7 @@ def plot_errors(path: str, errors: List[float], test_errors: List[float], title:
 
 learning_rate = 0.001
 minibatch_size = 32
-epochs = 500
+epochs = 200
 n_samples = 1000
 test_size = 0.2
 n_features = 10
@@ -113,18 +116,20 @@ n = 10  # number of experiment repetitions
 
 x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
 
-activation_functions = ['Tanh', 'Sigmoid', 'ReLu']
+# activation_functions = ['Tanh', 'Sigmoid', 'ReLu']
+activation_functions = ['ReLu']
+
 results_dict = {}
 
 for activation in activation_functions:
     nn = create_network(activation, n_features, output_size=1)
     errors, test_errors = nn.train(
-        x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
-        calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
+        x_train.T, y_train, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
+        calc_test_err=True, x_test=x_test.T, y_test=y_test)
 
     plot_errors(f'results/{activation}.png', errors, test_errors, activation)
 
-    print(f'{activation} score: {nn.score(x_test.T, y_test.T)}')
+    print(f'{activation} score: {nn.score(x_test.T, y_test)}')
 
     results = test_network_and_default_implementation(
         activation, epochs, learning_rate, minibatch_size, n, n_samples, test_size, n_features)

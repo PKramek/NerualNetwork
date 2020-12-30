@@ -45,18 +45,18 @@ class NeuralNetwork:
     @staticmethod
     def minibatch_generator(x_train: np.ndarray, y_train: np.ndarray, minibatch_size: int, shuffle: bool = False
                             ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
-        assert x_train.shape[0] == y_train.shape[0]
+        assert x_train.shape[1] == y_train.shape[1]
         assert isinstance(shuffle, bool), 'Shuffle must be a boolean'
 
-        indices = np.arange(x_train.shape[0])
+        indices = np.arange(x_train.shape[1])
 
         if shuffle:
             np.random.shuffle(indices)
 
-        for start in range(0, x_train.shape[0], minibatch_size):
-            end = min(start + minibatch_size, x_train.shape[0])
+        for start in range(0, x_train.shape[1], minibatch_size):
+            end = min(start + minibatch_size, x_train.shape[1])
 
-            yield x_train[indices[start: end]], y_train[indices[start: end]]
+            yield x_train[:, indices[start: end]], y_train[:, indices[start: end]]
 
     def train(self, x_train: np.ndarray, y_train: np.ndarray, epochs: int, learning_rate: float,
               minibatch_size: int, calc_test_err: bool = False, x_test: Optional[np.ndarray] = None,
@@ -68,13 +68,13 @@ class NeuralNetwork:
 
         assert isinstance(x_train, np.ndarray)
         assert isinstance(y_train, np.ndarray)
-        assert x_train.shape[0] == y_train.shape[0]
+        assert x_train.shape[1] == y_train.shape[1]
 
         assert isinstance(calc_test_err, bool)
         if calc_test_err:
             assert isinstance(x_test, np.ndarray)
             assert isinstance(y_test, np.ndarray)
-            assert x_test.shape[0] == y_test.shape[0]
+            assert x_test.shape[1] == y_test.shape[1]
 
         test_errors = []
         errors = []
