@@ -35,12 +35,9 @@ class Layer(ABC):
 class Linear(Layer):
     def __init__(self, input_size: int, output_size: int):
         super().__init__(input_size, output_size)
-
-        weights_low = -1 / np.sqrt(input_size)
-        weights_high = 1 / np.sqrt(input_size)
-
-        self.weights = np.random.uniform(low=weights_low, high=weights_high, size=(output_size, input_size))
-        self.bias = np.zeros((output_size, 1), dtype=np.float32)
+        self.weights = None
+        self.bias = None
+        self.initialize_weights()
 
     def forward(self, input_data: np.ndarray, no_grad: bool = False):
         output = np.dot(self.weights, input_data) + self.bias
@@ -60,6 +57,13 @@ class Linear(Layer):
         self.bias -= learning_rate * bias_derivatives
 
         return input_derivatives
+
+    def initialize_weights(self):
+        weights_low = -1 / np.sqrt(self._input_size)
+        weights_high = 1 / np.sqrt(self._input_size)
+
+        self.weights = np.random.uniform(low=weights_low, high=weights_high, size=(self._output_size, self._input_size))
+        self.bias = np.zeros((self._output_size, 1), dtype=np.float32)
 
 
 class ReLu(Layer):
