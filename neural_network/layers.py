@@ -71,7 +71,7 @@ class ReLu(Layer):
         super().__init__(input_size, output_size)
 
     def forward(self, input_data: np.ndarray, no_grad: bool = False):
-        output = input_data * (input_data > 0)
+        output = np.maximum(input_data, 0)
         if no_grad is False:
             self.input = input_data
             self.output = output
@@ -79,7 +79,7 @@ class ReLu(Layer):
         return output
 
     def backward(self, error: np.array, learning_rate: float):
-        output = (self.input > 0) * error
+        output = np.where(self.input > 0, 1, 0) * error
         return output
 
 
@@ -111,4 +111,4 @@ class Sigmoid(Layer):
 
     def backward(self, error: np.array, learning_rate: float):
         sigmoid = 1 / (1 + np.exp(-error))
-        return sigmoid * (1 - sigmoid)
+        return sigmoid * (1 - sigmoid) * error

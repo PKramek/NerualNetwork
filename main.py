@@ -1,4 +1,3 @@
-import warnings
 from pprint import pprint
 from typing import List, Callable
 
@@ -13,6 +12,7 @@ from neural_network.loss_functions import MSE
 from neural_network.neural_network import NeuralNetwork
 
 np.random.seed(42)
+
 
 # warnings.filterwarnings("ignore")
 
@@ -32,8 +32,6 @@ def create_training_and_testing_data(n_samples: int, test_size: float, n_feature
     assert isinstance(n_samples, int) and n_samples > 0
     assert isinstance(n_features, int) and n_features > 0
 
-    # x_train, y_train = create_samples(aim_function, training_size)
-    # x_test, y_test = create_samples(aim_function, test_size)
     x, y = make_regression(n_samples=n_samples, n_features=n_features)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size)
 
@@ -74,24 +72,28 @@ def create_network(activation_type: str, input_size: int, output_size: int, hidd
     return nn
 
 
-def test_network_and_default_implementation(
-        activation_type, epochs: int = 1000, learning_rate=0.001, minibatch_size=64, n: int = 10,
-        n_samples=1000, test_size: float = 0.2, n_features: int = 10):
+def test_network(x_train, y_train, x_test, y_test, activation_type, num_epochs: int = 200,
+                 lr=0.001, minibatch_size: int = 32, n: int = 10):
     assert isinstance(n, int) and n > 0
     nn_scores = []
+
+    for i in range(n):
+        nn = create_network(activation_type, n_features, output_size=1)
+        nn.train(x_train.T, y_train, learning_rate=lr, epochs=num_epochs, minibatch_size=minibatch_size)
+        nn_scores.append(nn.score(x_test.T, y_test))
+
+    return nn_scores, np.mean(nn_scores), np.std(nn_scores)
+
+
+def test_default_implementation(x_train, y_train, x_test, y_test, n: int = 10):
+    assert isinstance(n, int) and n > 0
     regr_scores = []
 
     for i in range(n):
-        x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
-
-        nn = create_network(activation_type, n_features, output_size=1)
-        nn.train(x_train.T, y_train, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size)
-        nn_scores.append(nn.score(x_test.T, y_test.T))
-
         regr = MLPRegressor().fit(x_train, y_train.ravel())
         regr_scores.append(regr.score(x_test, y_test.ravel()))
 
-    return nn_scores, np.mean(nn_scores), np.std(nn_scores), regr_scores, np.mean(regr_scores), np.std(regr_scores)
+    return regr_scores, np.mean(regr_scores), np.std(regr_scores)
 
 
 def plot_errors(path: str, errors: List[float], test_errors: List[float], title: str):
@@ -116,30 +118,32 @@ n = 10  # number of experiment repetitions
 
 x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
 
-# activation_functions = ['Tanh', 'Sigmoid', 'ReLu']
-activation_functions = ['ReLu']
-
+activation_functions = ['ReLu', 'Tanh', 'Sigmoid']
 results_dict = {}
 
 for activation in activation_functions:
-    nn = create_network(activation, n_features, output_size=1)
-    errors, test_errors = nn.train(
+    neural_network = create_network(activation, n_features, output_size=1)
+    errors, test_errors = neural_network.train(
         x_train.T, y_train, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
         calc_test_err=True, x_test=x_test.T, y_test=y_test)
 
     plot_errors(f'results/{activation}.png', errors, test_errors, activation)
 
-    print(f'{activation} score: {nn.score(x_test.T, y_test)}')
+    print(f'{activation} score: {neural_network.score(x_test.T, y_test)}')
 
-    results = test_network_and_default_implementation(
-        activation, epochs, learning_rate, minibatch_size, n, n_samples, test_size, n_features)
+    results = test_network(
+        x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
     results_dict[activation] = {
-        'nn scores': results[0],
-        'nn mean score': results[1],
-        'nn score std': results[2],
-        'regr scores': results[3],
-        'regr mean score': results[4],
-        'regr score std': results[5],
+        'scores': results[0],
+        'mean score': results[1],
+        'score std': results[2]
     }
+
+results = test_default_implementation(x_train, y_train, x_test, y_test, n)
+results_dict['MLPRegressor'] = {
+    'scores': results[0],
+    'mean score': results[1],
+    'score std': results[2]
+}
 
 pprint(results_dict)
