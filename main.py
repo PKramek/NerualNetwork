@@ -88,7 +88,7 @@ def plot_errors(path: str, errors: List[float], test_errors: List[float], title:
     plt.legend()
     plt.grid()
     plt.savefig(path)
-    plt.show()
+    # plt.show()
 
 
 learning_rate = 0.001
@@ -116,12 +116,12 @@ for activation in activation_functions:
     results = test_network_and_default_implementation(
         activation, epochs, learning_rate, minibatch_size, n, train_size, test_size)
     results_dict[activation] = {
-        'nn scores': results[0],
-        'nn mean score': results[1],
-        'nn score std': results[2],
-        'regr scores': results[3],
-        'regr mean score': results[4],
-        'regr score std': results[5],
+        'nn scores': np.round(results[0], 3),
+        'nn mean score': np.round(results[1], 3),
+        'nn score std': np.round(results[2], 3),
+        'regr scores': np.round(results[3], 3),
+        'regr mean score': np.round(results[4], 3),
+        'regr score std': np.round(results[5], 3),
     }
 
 pprint(results_dict)
