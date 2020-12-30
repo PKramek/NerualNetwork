@@ -35,8 +35,8 @@ def create_training_and_testing_data(n_samples: int, test_size: float, n_feature
     x, y = make_regression(n_samples=n_samples, n_features=n_features)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size)
 
-    y_train = y_train.reshape(1, y_train.shape[0])
-    y_test = y_test.reshape(1, y_test.shape[0])
+    y_train = y_train.reshape(y_train.shape[0], 1)
+    y_test = y_test.reshape(y_test.shape[0], 1)
 
     return x_train, y_train, x_test, y_test
 
@@ -79,8 +79,8 @@ def test_network(x_train, y_train, x_test, y_test, activation_type, num_epochs: 
 
     for i in range(n):
         nn = create_network(activation_type, n_features, output_size=1)
-        nn.train(x_train.T, y_train, learning_rate=lr, epochs=num_epochs, minibatch_size=minibatch_size)
-        nn_scores.append(nn.score(x_test.T, y_test))
+        nn.train(x_train.T, y_train.T, learning_rate=lr, epochs=num_epochs, minibatch_size=minibatch_size)
+        nn_scores.append(nn.score(x_test.T, y_test.T))
 
     return nn_scores, np.mean(nn_scores), np.std(nn_scores)
 
@@ -124,12 +124,12 @@ results_dict = {}
 for activation in activation_functions:
     neural_network = create_network(activation, n_features, output_size=1)
     errors, test_errors = neural_network.train(
-        x_train.T, y_train, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
-        calc_test_err=True, x_test=x_test.T, y_test=y_test)
+        x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
+        calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
 
     plot_errors(f'results/{activation}.png', errors, test_errors, activation)
 
-    print(f'{activation} score: {neural_network.score(x_test.T, y_test)}')
+    print(f'{activation} score: {neural_network.score(x_test.T, y_test.T)}')
 
     results = test_network(
         x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
