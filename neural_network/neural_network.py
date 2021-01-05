@@ -24,7 +24,6 @@ class NeuralNetwork:
         self.layers.append(layer)
 
     def predict(self, input_data: np.ndarray):
-        # input data could be 2d
         output = self.forward_propagation(input_data)
         return output
 
@@ -76,13 +75,17 @@ class NeuralNetwork:
             assert isinstance(y_test, np.ndarray)
             assert x_test.shape[1] == y_test.shape[1]
 
+            test_len = x_test.shape[1]
+
+        train_len = x_train.shape[1]
+
         test_errors = []
         errors = []
 
         for epoch in range(epochs):
             if calc_test_err:
                 test_output = self.forward_propagation(x_test, no_grad=True)
-                test_errors.append(self._loss_function.loss(test_output, y_test))
+                test_errors.append(self._loss_function.loss(test_output, y_test) / test_len)
 
             epoch_error = 0
             minibatch_generator = self.minibatch_generator(x_train, y_train, minibatch_size, True)
@@ -92,9 +95,11 @@ class NeuralNetwork:
                 error_derivative = self._loss_function.derivative(output, y)
                 self.backward_propagation(error_derivative, learning_rate)
 
-            errors.append(epoch_error)
+            errors.append(epoch_error / train_len)
+
 
         if calc_test_err:
+
             return errors, test_errors
 
         return errors

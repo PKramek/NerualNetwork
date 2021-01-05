@@ -13,7 +13,6 @@ from neural_network.neural_network import NeuralNetwork
 
 np.random.seed(42)
 
-
 def create_training_and_testing_data(n_samples: int, test_size: float, n_features: int):
     assert isinstance(test_size, float) and 0 < test_size < 1
     assert isinstance(n_samples, int) and n_samples > 0
