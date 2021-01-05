@@ -1,3 +1,4 @@
+import csv
 from pprint import pprint
 from typing import List
 
@@ -67,9 +68,9 @@ def test_network(x_train, y_train, x_test, y_test, activation_type, num_epochs: 
     for i in range(n):
         nn = create_network(activation_type, n_features, output_size=1)
         nn.train(x_train.T, y_train.T, learning_rate=lr, epochs=num_epochs, minibatch_size=minibatch_size)
-        nn_scores.append(nn.score(x_test.T, y_test.T))
+        nn_scores.append(round(nn.score(x_test.T, y_test.T), 3))
 
-    return nn_scores, np.mean(nn_scores), np.std(nn_scores)
+    return nn_scores, round(np.mean(nn_scores), 3), round(np.std(nn_scores), 3)
 
 
 def test_default_implementation(x_train, y_train, x_test, y_test, n: int = 10):
@@ -78,9 +79,9 @@ def test_default_implementation(x_train, y_train, x_test, y_test, n: int = 10):
 
     for i in range(n):
         regr = MLPRegressor().fit(x_train, y_train.ravel())
-        regr_scores.append(regr.score(x_test, y_test.ravel()))
+        regr_scores.append(round(regr.score(x_test, y_test.ravel()), 3))
 
-    return regr_scores, np.mean(regr_scores), np.std(regr_scores)
+    return regr_scores, round(np.mean(regr_scores), 3), round(np.std(regr_scores), 3)
 
 
 def plot_errors(path: str, errors: List[float], test_errors: List[float], title: str):
@@ -106,7 +107,7 @@ n = 10  # number of experiment repetitions
 x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
 
 activation_functions = ['ReLu', 'Tanh', 'Sigmoid']
-results_dict = {}
+results_list = []
 
 for activation in activation_functions:
     neural_network = create_network(activation, n_features, output_size=1)
@@ -120,17 +121,31 @@ for activation in activation_functions:
 
     results = test_network(
         x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
-    results_dict[activation] = {
+    results_list.append({
+        'type': activation,
         'scores': results[0],
         'mean score': results[1],
         'score std': results[2]
-    }
+    })
 
 results = test_default_implementation(x_train, y_train, x_test, y_test, n)
-results_dict['MLPRegressor'] = {
+results_list.append({
+    'type': 'MLPRegressor',
     'scores': results[0],
     'mean score': results[1],
     'score std': results[2]
-}
+})
 
-pprint(results_dict)
+csv_file = 'results/resutls.csv'
+fieldnames = ['scores', 'mean score', 'score std']
+
+try:
+    with open(csv_file, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, results_list[0].keys())
+        writer.writeheader()
+        for data in results_list:
+            writer.writerow(data)
+except IOError:
+    print("I/O error")
+
+pprint(results_list)
