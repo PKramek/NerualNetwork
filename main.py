@@ -1,5 +1,4 @@
 import csv
-from pprint import pprint
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -105,51 +104,49 @@ n_features = 10
 n = 10  # number of experiment repetitions
 
 x_train, y_train, x_test, y_test = create_training_and_testing_data(n_samples, test_size, n_features)
+for num_of_samples in [1000, 100]:
+    activation_functions = ['ReLu', 'Tanh', 'Sigmoid']
+    results_list = []
 
-activation_functions = ['ReLu', 'Tanh', 'Sigmoid']
-results_list = []
+    for activation in activation_functions:
+        neural_network = create_network(activation, n_features, output_size=1)
+        errors, test_errors = neural_network.train(
+            x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
+            calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
 
-for activation in activation_functions:
-    neural_network = create_network(activation, n_features, output_size=1)
-    errors, test_errors = neural_network.train(
-        x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
-        calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
+        plot_errors(f'results/{activation}_n_samples{num_of_samples}.png', errors, test_errors, activation)
 
-    plot_errors(f'results/{activation}.png', errors, test_errors, activation)
+        print(f'num of samples: {num_of_samples} {activation} score: {neural_network.score(x_test.T, y_test.T)}')
 
-    print(f'{activation} score: {neural_network.score(x_test.T, y_test.T)}')
+        results = test_network(
+            x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
+        results_dict = {'type': activation}
 
-    results = test_network(
-        x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
-    results_dict = {'type': activation}
+        for i, result in enumerate(results[0]):
+            results_dict[i] = result
 
+        results_dict['mean score'] = results[1]
+        results_dict['score std'] = results[2]
+
+        results_list.append(results_dict)
+
+    results = test_default_implementation(x_train, y_train, x_test, y_test, n)
+    mlp_results_dict = {'type': 'MLPRegressor'}
     for i, result in enumerate(results[0]):
-        results_dict[i] = result
+        mlp_results_dict[i] = result
+        mlp_results_dict['mean score'] = results[1]
+        mlp_results_dict['score std'] = results[2]
 
-    results_dict['mean score'] = results[1]
-    results_dict['score std'] = results[2]
+    results_list.append(mlp_results_dict)
 
-    results_list.append(results_dict)
+    csv_file = f'results/results_{num_of_samples}.csv'
+    fieldnames = ['scores', 'mean score', 'score std']
 
-results = test_default_implementation(x_train, y_train, x_test, y_test, n)
-mlp_results_dict = {'type': 'MLPRegressor'}
-for i, result in enumerate(results[0]):
-    mlp_results_dict[i] = result
-    mlp_results_dict['mean score'] = results[1]
-    mlp_results_dict['score std'] = results[2]
-
-results_list.append(mlp_results_dict)
-
-csv_file = 'results/results.csv'
-fieldnames = ['scores', 'mean score', 'score std']
-
-try:
-    with open(csv_file, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, results_list[0].keys())
-        writer.writeheader()
-        for data in results_list:
-            writer.writerow(data)
-except IOError:
-    print("I/O error")
-
-pprint(results_list)
+    try:
+        with open(csv_file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, results_list[0].keys())
+            writer.writeheader()
+            for data in results_list:
+                writer.writerow(data)
+    except IOError:
+        print("I/O error")
