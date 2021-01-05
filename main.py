@@ -121,22 +121,26 @@ for activation in activation_functions:
 
     results = test_network(
         x_train, y_train, x_test, y_test, activation, epochs, learning_rate, minibatch_size, n)
-    results_list.append({
-        'type': activation,
-        'scores': results[0],
-        'mean score': results[1],
-        'score std': results[2]
-    })
+    results_dict = {'type': activation}
+
+    for i, result in enumerate(results[0]):
+        results_dict[i] = result
+
+    results_dict['mean score'] = results[1]
+    results_dict['score std'] = results[2]
+
+    results_list.append(results_dict)
 
 results = test_default_implementation(x_train, y_train, x_test, y_test, n)
-results_list.append({
-    'type': 'MLPRegressor',
-    'scores': results[0],
-    'mean score': results[1],
-    'score std': results[2]
-})
+mlp_results_dict = {'type': 'MLPRegressor'}
+for i, result in enumerate(results[0]):
+    mlp_results_dict[i] = result
+    mlp_results_dict['mean score'] = results[1]
+    mlp_results_dict['score std'] = results[2]
 
-csv_file = 'results/resutls.csv'
+results_list.append(mlp_results_dict)
+
+csv_file = 'results/results.csv'
 fieldnames = ['scores', 'mean score', 'score std']
 
 try:
