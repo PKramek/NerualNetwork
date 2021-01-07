@@ -111,7 +111,7 @@ for num_of_samples in [1000, 100]:
         neural_network = create_network(activation, n_features, output_size=1)
         errors, test_errors = neural_network.train(
             x_train.T, y_train.T, learning_rate=learning_rate, epochs=epochs, minibatch_size=minibatch_size,
-            calc_test_err=True, x_test=x_test.T, y_test=y_test.T)
+            calc_errors=True, x_test=x_test.T, y_test=y_test.T)
 
         plot_errors(f'results/{activation}_n_samples{num_of_samples}.png', errors, test_errors, activation)
 
